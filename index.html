@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mallah Traders — Commodity Trading System</title>
+    <meta name="description"
+        content="Simple, modern web application for Wheat, Rice, Sugar Cane commodity trading, stock inventory, and party ledgers.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- LEFT SIDEBAR NAVIGATION (NO TOP SCROLLING) -->
+        <aside class="sidebar-left">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+                <div class="brand-info">
+                    <h1>MALLAH TRADERS</h1>
+                    <small>Wheat • Rice • Sugar Cane MIS</small>
+                </div>
+            </div>
+
+            <!-- LANGUAGE SWITCHER (INSIDE SIDEBAR TOP) -->
+            <div class="lang-switch-box sidebar-lang-box" id="lang-switch-box"
+                title="Switch Language / ٻولي تبديل ڪريو">
+                <i class="fa-solid fa-globe lang-icon"></i>
+                <div class="lang-toggle-group" id="lang-toggle-group">
+                    <button type="button" class="lang-btn active" data-lang="en">English</button>
+                    <button type="button" class="lang-btn" data-lang="sd">سنڌي</button>
+                    <button type="button" class="lang-btn" data-lang="ur">اردو</button>
+                </div>
+            </div>
+
+            <!-- VERTICAL NAVIGATION MENU -->
+            <nav class="sidebar-nav" id="main-nav">
+                <button class="nav-btn active" data-view="dashboard" id="nav-dashboard">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span data-i18n="nav_dashboard">Home & Stock</span>
+                </button>
+                <button class="nav-btn nav-btn-buy" data-view="buy" id="nav-buy">
+                    <i class="fa-solid fa-cart-arrow-down"></i>
+                    <span data-i18n="nav_buy">Buy Stock (خريداري)</span>
+                </button>
+                <button class="nav-btn nav-btn-sell" data-view="sell" id="nav-sell">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span data-i18n="nav_sell">Sell Stock (وڪرو)</span>
+                </button>
+                <button class="nav-btn" data-view="khata" id="nav-khata">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span data-i18n="nav_khata">Party Khata (کاتو)</span>
+                </button>
+                <button class="nav-btn" data-view="history" id="nav-history">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span data-i18n="nav_history">All Deals & History</span>
+                </button>
+                <button class="nav-btn" data-view="bill" id="nav-bill">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span data-i18n="nav_bill">Print Bill</span>
+                </button>
+                <button class="nav-btn" data-view="settings" id="nav-settings">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-i18n="nav_settings">Settings</span>
+                </button>
+            </nav>
+
+            <!-- SIDEBAR FOOTER (TOOLS & DELETE ALL RECORDS) -->
+            <div class="sidebar-footer">
+                <div class="sidebar-tools-row">
+                    <button id="theme-toggle-btn" class="icon-circle-btn" title="Dark/Light Mode">
+                        <i class="fa-solid fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button id="refresh-data-btn" class="icon-circle-btn" title="Refresh Database">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <span class="sidebar-clock" id="live-clock"><i class="fa-regular fa-clock"></i> ...</span>
+                </div>
+                <button id="nav-btn-delete-all" class="btn-danger-block" title="Delete All Records">
+                    <i class="fa-solid fa-trash-can"></i> <span data-i18n="nav_reset_db">Reset DB</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN APP CONTENT (RIGHT SIDE) -->
+        <div class="main-content-wrapper">
+            <main class="simple-container">
+
+                <!-- ================= PAGE 1: DASHBOARD & STOCK ================= -->
+                <section id="view-dashboard" class="simple-view active">
+                    <!-- 4 HIGH-IMPACT BUSINESS CARDS -->
+                    <div class="hero-kpi-row">
+                        <div class="hero-kpi-card kpi-stock">
+                            <div class="hero-kpi-icon"><i class="fa-solid fa-warehouse"></i></div>
+                            <div class="hero-kpi-content">
+                                <span class="hero-kpi-label" data-i18n="kpi_stock">Godown Stock (گودام جو مال)</span>
+                                <h2 class="hero-kpi-val" id="dash-total-stock">0 KG</h2>
+                                <small class="hero-kpi-sub" id="dash-stock-value">Value: Rs 0.00 • (0.00 Maunds)</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-kpi-card kpi-profit">
+                            <div class="hero-kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
+                            <div class="hero-kpi-content">
+                                <span class="hero-kpi-label" data-i18n="kpi_profit">Net Profit (خالص منافعو)</span>
+                                <h2 class="hero-kpi-val" id="dash-net-profit">Rs 0.00</h2>
+                                <small class="hero-kpi-sub" data-i18n="kpi_profit_sub">Sales − Purchases −
+                                    Expenses</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-kpi-card kpi-receivable">
+                            <div class="hero-kpi-icon"><i class="fa-solid fa-arrow-down-left"></i></div>
+                            <div class="hero-kpi-content">
+                                <span class="hero-kpi-label" data-i18n="kpi_receivable">Market Dues to Collect (وٺڻي
+                                    رقم)</span>
+                                <h2 class="hero-kpi-val" id="dash-receivables">Rs 0.00</h2>
+                                <small class="hero-kpi-sub" data-i18n="kpi_receivable_sub">From Buyers & Mills
+                                    (Dr)</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-kpi-card kpi-payable">
+                            <div class="hero-kpi-icon"><i class="fa-solid fa-arrow-up-right"></i></div>
+                            <div class="hero-kpi-content">
+                                <span class="hero-kpi-label" data-i18n="kpi_payable">Dues to Pay Farmers (ڏيڻي
+                                    رقم)</span>
+                                <h2 class="hero-kpi-val" id="dash-payables">Rs 0.00</h2>
+                                <small class="hero-kpi-sub" data-i18n="kpi_payable_sub">To Farmers & Suppliers
+                                    (Cr)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BIG 3 QUICK ACTION BUTTONS -->
+                    <div class="quick-action-cards">
+                        <div class="quick-card card-action-buy" id="btn-quick-buy">
+                            <div class="q-icon"><i class="fa-solid fa-cart-arrow-down"></i></div>
+                            <div class="q-text">
+                                <h3 data-i18n="qa_buy_title">+ BUY STOCK (خريداري)</h3>
+                                <p data-i18n="qa_buy_sub">Buy Wheat, Rice, Sugar Cane from Farmer or Zamindar</p>
+                            </div>
+                            <i class="fa-solid fa-arrow-right q-arrow"></i>
+                        </div>
+
+                        <div class="quick-card card-action-sell" id="btn-quick-sell">
+                            <div class="q-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                            <div class="q-text">
+                                <h3 data-i18n="qa_sell_title">+ SELL STOCK (وڪرو)</h3>
+                                <p data-i18n="qa_sell_sub">Sell stock to Flour Mill, Rice Mill, Sugar Mill, or Trader
+                                </p>
+                            </div>
+                            <i class="fa-solid fa-arrow-right q-arrow"></i>
+                        </div>
+
+                        <div class="quick-card card-action-pay" id="btn-quick-pay">
+                            <div class="q-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                            <div class="q-text">
+                                <h3 data-i18n="qa_pay_title">+ CASH PAYMENT (روڪ کاتو)</h3>
+                                <p data-i18n="qa_pay_sub">Pay pending balance to farmer or receive cash from mill</p>
+                            </div>
+                            <i class="fa-solid fa-arrow-right q-arrow"></i>
+                        </div>
+                    </div>
+
+                    <!-- LIVE GODOWN STOCK POSITION -->
+                    <div class="section-box mb-24">
+                        <div class="section-box-header">
+                            <div class="box-title">
+                                <i class="fa-solid fa-boxes-stacked" style="color:var(--accent-amber);"></i>
+                                <div>
+                                    <h3>Live Warehouse Stock Position (موجود گودام مال)</h3>
+                                    <small>Wheat, Rice, Sugar Cane & Crops available right now</small>
+                                </div>
+                            </div>
+                            <span class="unit-formula-pill">1 Maund (منڊ) = 40 KG | 1 Ton = 25 Maunds</span>
+                        </div>
+
+                        <div class="simple-stock-grid" id="dashboard-stock-cards">
+                            <!-- Populated dynamically: Wheat, Rice, Sugar Cane cards -->
+                        </div>
+                    </div>
+
+                    <!-- RECENT DEALS FEED -->
+                    <div class="section-box">
+                        <div class="section-box-header">
+                            <div class="box-title">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <div>
+                                    <h3>Recent Deals (تازيون سوديون)</h3>
+                                    <small>Latest purchases and sales recorded in your business</small>
+                                </div>
+                            </div>
+                            <button class="btn-text-action" id="btn-view-all-deals">View All Deals <i
+                                    class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="simple-table" id="dashboard-recent-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Party Name</th>
+                                        <th>Commodity</th>
+                                        <th>Weight (KG)</th>
+                                        <th>Maunds (40kg)</th>
+                                        <th>Rate / 1 KG</th>
+                                        <th>Total (Rs)</th>
+                                        <th>Paid (Rs)</th>
+                                        <th>Balance Due (Rs)</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-recent-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PAGE 2: BUY STOCK (PURCHASE) ================= -->
+                <section id="view-buy" class="simple-view">
+                    <div class="deal-card deal-card-buy">
+                        <div class="deal-card-header">
+                            <div class="deal-header-icon"><i class="fa-solid fa-cart-arrow-down"></i></div>
+                            <div>
+                                <h2>Buy Stock from Farmer / Supplier (فصل خريداري)</h2>
+                                <p>Stock enters your Godown. Calculates Gross Total, Paid Cash, and Remaining Khata
+                                    Balance.</p>
+                            </div>
+                        </div>
+
+                        <form id="form-buy-deal" class="simple-deal-form">
+                            <input type="hidden" id="buy-deal-id">
+                            <input type="hidden" id="buy-txn-type" value="Purchase">
+
+                            <!-- STEP 1: PARTY NAME -->
+                            <div class="step-card">
+                                <div class="step-badge">1</div>
+                                <div class="step-content">
+                                    <label class="step-label required">Farmer / Supplier Name (زميندار / سپلائر جو
+                                        نالو)</label>
+                                    <input type="text" id="buy-client-name" list="datalist-clients" class="big-input"
+                                        required placeholder="Type farmer name (e.g. Haji Ali, Ghulam Rasool)">
+                                </div>
+                            </div>
+
+                            <!-- STEP 2: COMMODITY -->
+                            <div class="step-card">
+                                <div class="step-badge">2</div>
+                                <div class="step-content">
+                                    <label class="step-label required">Choose Crop (فصل چونڊيو)</label>
+                                    <div class="crop-select-chips" id="buy-crop-chips">
+                                        <button type="button" class="crop-chip active" data-crop="Wheat">🌾 Wheat
+                                            (گندم)</button>
+                                        <button type="button" class="crop-chip" data-crop="Rice">🍚 Rice (چاول)</button>
+                                        <button type="button" class="crop-chip" data-crop="Sugar Cane">🎋 Sugar Cane
+                                            (کمند)</button>
+                                        <button type="button" class="crop-chip" data-crop="Corn">🌽 Corn (مکئي)</button>
+                                        <button type="button" class="crop-chip" data-crop="Mustard">🌻 Mustard
+                                            (سرسوں)</button>
+                                        <button type="button" class="crop-chip" data-crop="Custom">➕ Other</button>
+                                    </div>
+                                    <input type="text" id="buy-commodity" list="datalist-commodities" required
+                                        value="Wheat" class="hidden-crop-input" placeholder="Commodity name">
+                                </div>
+                            </div>
+
+                            <!-- STEP 3: QUANTITY & RATE (MANDI CALCULATOR) -->
+                            <div class="step-card">
+                                <div class="step-badge">3</div>
+                                <div class="step-content">
+                                    <label class="step-label required">Quantity & Price (وزن ۽ اگهه)</label>
+                                    <div class="calc-grid-2">
+                                        <div class="calc-input-box">
+                                            <label for="buy-kg"><span data-i18n="buy_lbl_weight">Weight in KG (وزن ڪلو
+                                                    گرام)</span> <span class="badge-tag badge-buy"
+                                                    style="font-size:10px; padding:2px 6px;">DEFAULT</span></label>
+                                            <input type="number" step="any" id="buy-kg" class="big-input" required
+                                                placeholder="e.g. 2000">
+                                            <small class="calc-sync-tip" id="buy-sync-maunds">= 0.00 Maunds (منڊ - 40
+                                                KG)</small>
+                                        </div>
+                                        <div class="calc-input-box">
+                                            <label for="buy-rate"><span data-i18n="buy_lbl_rate">Rate per 1 KG (اگهه في
+                                                    1 ڪلو)</span></label>
+                                            <input type="number" step="any" id="buy-rate" class="big-input" required
+                                                placeholder="e.g. 105">
+                                            <small class="calc-sync-tip" id="buy-sync-rate-maund">= Rs 0.00 per 40 KG
+                                                (منڊ)</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- BIG HIGHLIGHTED TOTAL -->
+                                    <div class="deal-total-banner">
+                                        <span>Total Deal Value (مال جي ڪل رقم):</span>
+                                        <strong id="buy-display-total">Rs 0.00</strong>
+                                    </div>
+                                    <input type="hidden" id="buy-weight-kg" value="0">
+                                    <input type="hidden" id="buy-maunds" value="0">
+                                    <input type="hidden" id="buy-rate-maund" value="0">
+                                    <input type="hidden" id="buy-gross-total" value="0">
+                                </div>
+                            </div>
+
+                            <!-- STEP 4: CASH PAID & REMAINING BALANCE -->
+                            <div class="step-card">
+                                <div class="step-badge">4</div>
+                                <div class="step-content">
+                                    <label class="step-label">Payment & Khata Balance (روڪ ادائيگي ۽ باقي)</label>
+                                    <div class="calc-grid-2">
+                                        <div class="calc-input-box">
+                                            <label for="buy-cash-paid">Spot Cash Paid Now (ادا ڪيل رقم)</label>
+                                            <input type="number" step="any" id="buy-cash-paid" class="big-input"
+                                                value="0" placeholder="0.00">
+                                        </div>
+                                        <div class="calc-input-box">
+                                            <label for="buy-balance">Remaining Balance Owed (باقي ڏيڻي رقم)</label>
+                                            <input type="number" step="any" id="buy-balance"
+                                                class="big-input balance-display" readonly value="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- OPTIONAL ACCORDION: TRANSPORT & TRUCK DETAILS -->
+                            <details class="optional-details-box">
+                                <summary><i class="fa-solid fa-truck"></i> <span>➕ Optional: Transport, Freight (ڀاڙو) &
+                                        Vehicle
+                                        Details</span></summary>
+                                <div class="optional-inner-grid">
+                                    <div class="opt-field">
+                                        <label for="buy-kiraya">Freight / Kiraya (ڀاڙو)</label>
+                                        <input type="number" step="any" id="buy-kiraya" value="0" class="buy-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-kanta">Scale / Kanta (ڪانٽو)</label>
+                                        <input type="number" step="any" id="buy-kanta" value="0" class="buy-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-loading">Loading (چڙهائي)</label>
+                                        <input type="number" step="any" id="buy-loading" value="0" class="buy-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-unloading">Unloading (لاهائي)</label>
+                                        <input type="number" step="any" id="buy-unloading" value="0"
+                                            class="buy-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-brokery">Brokerage / Arhat (دلالي)</label>
+                                        <input type="number" step="any" id="buy-brokery" value="0" class="buy-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-payer">Who Pays Transport?</label>
+                                        <select id="buy-payer">
+                                            <option value="Company">Paid by Us / Company</option>
+                                            <option value="Client">Deducted from Farmer's Bill</option>
+                                        </select>
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-veh-type">Vehicle Type</label>
+                                        <input type="text" id="buy-veh-type" placeholder="e.g. Truck, Tractor">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-veh-num">Vehicle Reg #</label>
+                                        <input type="text" id="buy-veh-num" placeholder="e.g. NJ-9921">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-gatepass">Bilty / Gate Pass #</label>
+                                        <input type="text" id="buy-gatepass" placeholder="e.g. GP-102">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="buy-date">Deal Date</label>
+                                        <input type="text" id="buy-date" placeholder="YYYY-MM-DD HH:MM:SS">
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- SAVE ACTION BUTTONS -->
+                            <div class="deal-form-footer">
+                                <button type="button" class="btn-clear-deal" id="btn-clear-buy">Reset Form</button>
+                                <button type="submit" class="btn-save-deal btn-save-buy" id="btn-save-buy-submit">
+                                    <i class="fa-solid fa-floppy-disk"></i> SAVE PURCHASE DEAL (خريداري محفوظ ڪريو)
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- ================= PAGE 3: SELL STOCK (SALE) ================= -->
+                <section id="view-sell" class="simple-view">
+                    <div class="deal-card deal-card-sell">
+                        <div class="deal-card-header">
+                            <div class="deal-header-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                            <div>
+                                <h2>Sell Stock to Mill / Buyer (فصل وڪرو)</h2>
+                                <p>Stock leaves your Godown. Calculates Sale Value, Cash Received, and Market Dues
+                                    (Receivable).
+                                </p>
+                            </div>
+                        </div>
+
+                        <form id="form-sell-deal" class="simple-deal-form">
+                            <input type="hidden" id="sell-deal-id">
+                            <input type="hidden" id="sell-txn-type" value="Sale">
+
+                            <!-- STEP 1: BUYER NAME -->
+                            <div class="step-card">
+                                <div class="step-badge">1</div>
+                                <div class="step-content">
+                                    <label class="step-label required">Buyer / Mill Name (مل / خريدار جو نالو)</label>
+                                    <input type="text" id="sell-client-name" list="datalist-clients" class="big-input"
+                                        required
+                                        placeholder="Type buyer name (e.g. Mehran Sugar Mill, Sindh Flour Mill)">
+                                </div>
+                            </div>
+
+                            <!-- STEP 2: COMMODITY -->
+                            <div class="step-card">
+                                <div class="step-badge">2</div>
+                                <div class="step-content">
+                                    <label class="step-label required">Choose Crop to Sell (وڪرو ٿيندڙ فصل)</label>
+                                    <div class="crop-select-chips" id="sell-crop-chips">
+                                        <button type="button" class="crop-chip active" data-crop="Wheat">🌾 Wheat
+                                            (گندم)</button>
+                                        <button type="button" class="crop-chip" data-crop="Rice">🍚 Rice (چاول)</button>
+                                        <button type="button" class="crop-chip" data-crop="Sugar Cane">🎋 Sugar Cane
+                                            (کمند)</button>
+                                        <button type="button" class="crop-chip" data-crop="Corn">🌽 Corn (مکئي)</button>
+                                        <button type="button" class="crop-chip" data-crop="Mustard">🌻 Mustard
+                                            (سرسوں)</button>
+                                        <button type="button" class="crop-chip" data-crop="Custom">➕ Other</button>
+                                    </div>
+                                    <input type="text" id="sell-commodity" list="datalist-commodities" required
+                                        value="Wheat" class="hidden-crop-input" placeholder="Commodity name">
+                                </div>
+                            </div>
+
+                            <!-- STEP 3: QUANTITY & RATE -->
+                            <div class="step-card">
+                                <div class="step-badge">3</div>
+                                <div class="step-content">
+                                    <label class="step-label required">Selling Quantity & Rate (وڪري جو وزن ۽
+                                        اگهه)</label>
+                                    <div class="calc-grid-2">
+                                        <div class="calc-input-box">
+                                            <label for="sell-kg"><span data-i18n="sell_lbl_weight">Weight in KG (وزن ڪلو
+                                                    گرام)</span> <span class="badge-tag badge-sell"
+                                                    style="font-size:10px; padding:2px 6px;">DEFAULT</span></label>
+                                            <input type="number" step="any" id="sell-kg" class="big-input" required
+                                                placeholder="e.g. 2000">
+                                            <small class="calc-sync-tip" id="sell-sync-maunds">= 0.00 Maunds (منڊ - 40
+                                                KG)</small>
+                                        </div>
+                                        <div class="calc-input-box">
+                                            <label for="sell-rate"><span data-i18n="sell_lbl_rate">Selling Rate per 1 KG
+                                                    (وڪرو اگهه في 1 ڪلو)</span></label>
+                                            <input type="number" step="any" id="sell-rate" class="big-input" required
+                                                placeholder="e.g. 115">
+                                            <small class="calc-sync-tip" id="sell-sync-rate-maund">= Rs 0.00 per 40 KG
+                                                (منڊ)</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- BIG HIGHLIGHTED TOTAL -->
+                                    <div class="deal-total-banner">
+                                        <span>Total Sale Value (وڪري جي ڪل رقم):</span>
+                                        <strong id="sell-display-total" style="color:var(--purch-blue);">Rs
+                                            0.00</strong>
+                                    </div>
+                                    <input type="hidden" id="sell-weight-kg" value="0">
+                                    <input type="hidden" id="sell-maunds" value="0">
+                                    <input type="hidden" id="sell-rate-maund" value="0">
+                                    <input type="hidden" id="sell-gross-total" value="0">
+                                </div>
+                            </div>
+
+                            <!-- STEP 4: CASH RECEIVED & REMAINING RECEIVABLE -->
+                            <div class="step-card">
+                                <div class="step-badge">4</div>
+                                <div class="step-content">
+                                    <label class="step-label">Payment Received & Due (وصولي ۽ باقي وٺڻي)</label>
+                                    <div class="calc-grid-2">
+                                        <div class="calc-input-box">
+                                            <label for="sell-cash-paid">Cash Received from Buyer Now (وصول ٿيل
+                                                رقم)</label>
+                                            <input type="number" step="any" id="sell-cash-paid" class="big-input"
+                                                value="0" placeholder="0.00">
+                                        </div>
+                                        <div class="calc-input-box">
+                                            <label for="sell-balance">Remaining Due from Buyer (باقي وٺڻي رقم)</label>
+                                            <input type="number" step="any" id="sell-balance"
+                                                class="big-input balance-display" readonly value="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- OPTIONAL ACCORDION: TRANSPORT -->
+                            <details class="optional-details-box">
+                                <summary><i class="fa-solid fa-truck"></i> <span>➕ Optional: Transport & Delivery
+                                        Details</span>
+                                </summary>
+                                <div class="optional-inner-grid">
+                                    <div class="opt-field">
+                                        <label for="sell-kiraya">Freight / Kiraya (ڀاڙو)</label>
+                                        <input type="number" step="any" id="sell-kiraya" value="0"
+                                            class="sell-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="sell-kanta">Scale / Kanta (ڪانٽو)</label>
+                                        <input type="number" step="any" id="sell-kanta" value="0" class="sell-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="sell-loading">Loading (چڙهائي)</label>
+                                        <input type="number" step="any" id="sell-loading" value="0"
+                                            class="sell-exp-calc">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="sell-payer">Who Pays Delivery?</label>
+                                        <select id="sell-payer">
+                                            <option value="Company">Paid by Us / Company</option>
+                                            <option value="Client">Added to Buyer's Invoice</option>
+                                        </select>
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="sell-veh-type">Vehicle Type</label>
+                                        <input type="text" id="sell-veh-type" placeholder="e.g. Truck, Dumper">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="sell-veh-num">Vehicle Reg #</label>
+                                        <input type="text" id="sell-veh-num" placeholder="e.g. TKB-4021">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="sell-gatepass">Bilty / Gate Pass #</label>
+                                        <input type="text" id="sell-gatepass" placeholder="e.g. GP-802">
+                                    </div>
+                                    <div class="opt-field">
+                                        <label for="sell-date">Deal Date</label>
+                                        <input type="text" id="sell-date" placeholder="YYYY-MM-DD HH:MM:SS">
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- SAVE ACTION BUTTONS -->
+                            <div class="deal-form-footer">
+                                <button type="button" class="btn-clear-deal" id="btn-clear-sell">Reset Form</button>
+                                <button type="submit" class="btn-save-deal btn-save-sell" id="btn-save-sell-submit">
+                                    <i class="fa-solid fa-floppy-disk"></i> SAVE SALE DEAL (وڪرو محفوظ ڪريو)
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- ================= PAGE 4: PARTY KHATA (ACCOUNTS) ================= -->
+                <section id="view-khata" class="simple-view">
+                    <div class="section-box mb-24">
+                        <div class="section-box-header">
+                            <div class="box-title">
+                                <i class="fa-solid fa-book-bookmark" style="color:var(--primary);"></i>
+                                <div>
+                                    <h3>Customer & Farmer Khata (کاتو)</h3>
+                                    <small>Search any person or mill to see their balance, transactions, and print
+                                        statements</small>
+                                </div>
+                            </div>
+                            <button class="btn-secondary-pill" id="btn-new-party-shortcut">
+                                <i class="fa-solid fa-user-plus"></i> + Add New Party
+                            </button>
+                        </div>
+
+                        <!-- SELECT PARTY SELECTOR -->
+                        <div class="khata-party-selector-box">
+                            <label for="khata-party-select">Select Farmer or Mill:</label>
+                            <select id="khata-party-select" class="big-input">
+                                <option value="">-- Choose a party to view their account --</option>
+                            </select>
+                        </div>
+
+                        <!-- SPOTLIGHT BALANCE BANNER -->
+                        <div class="khata-spotlight-card" id="khata-spotlight-card" style="display:none;">
+                            <div class="spotlight-left">
+                                <h2 id="spotlight-party-name">Haji Ali</h2>
+                                <p id="spotlight-party-info">Farmer • Newjatoi</p>
+                            </div>
+                            <div class="spotlight-center">
+                                <span class="spotlight-label">Outstanding Balance Status:</span>
+                                <h1 id="spotlight-balance-val">Rs 0.00</h1>
+                                <small id="spotlight-balance-desc">Cleared</small>
+                            </div>
+                            <div class="spotlight-actions">
+                                <button class="btn-spotlight-pay" id="btn-spotlight-pay">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i> Record Payment
+                                </button>
+                                <button class="btn-spotlight-bill" id="btn-spotlight-bill">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> Print Statement
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PARTY LEDGER TABLE -->
+                        <div class="table-responsive mt-16" id="khata-ledger-container" style="display:none;">
+                            <table class="simple-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Particulars / Description</th>
+                                        <th>Crop & Weight (KG)</th>
+                                        <th>Debit / Dr (وٺڻي)</th>
+                                        <th>Credit / Cr (ڏيڻي)</th>
+                                        <th>Running Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="khata-ledger-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ALL CLIENTS DIRECTORY BOARD -->
+                    <div class="section-box">
+                        <div class="section-box-header">
+                            <div class="box-title">
+                                <i class="fa-solid fa-users"></i>
+                                <div>
+                                    <h3>All Registered Parties & Balances</h3>
+                                    <small>Full debtor and creditor balance sheet</small>
+                                </div>
+                            </div>
+                            <input type="text" id="party-search-input" placeholder="Search party name, village..."
+                                class="search-mini-input">
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="simple-table" id="all-parties-table">
+                                <thead>
+                                    <tr>
+                                        <th>Party Name</th>
+                                        <th>Village / Contact</th>
+                                        <th>Total Deals</th>
+                                        <th>Net Balance Status</th>
+                                        <th>Amount (Rs)</th>
+                                        <th>Quick Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="all-parties-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PAGE 5: ALL DEALS & HISTORY ================= -->
+                <section id="view-history" class="simple-view">
+                    <div class="section-box">
+                        <div class="section-box-header">
+                            <div class="box-title">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <div>
+                                    <h3>Complete Commodity Deals Register</h3>
+                                    <small>Search, filter, edit, or delete any past transaction</small>
+                                </div>
+                            </div>
+                            <div class="history-filter-bar">
+                                <select id="hist-type-filter" class="filter-select">
+                                    <option value="">All Deals (Buy & Sell)</option>
+                                    <option value="Purchase">Purchases (Buy)</option>
+                                    <option value="Sale">Sales (Sell)</option>
+                                </select>
+                                <select id="hist-commodity-filter" class="filter-select">
+                                    <option value="">All Commodities</option>
+                                    <option value="Wheat">Wheat (گندم)</option>
+                                    <option value="Rice">Rice (چاول)</option>
+                                    <option value="Sugar Cane">Sugar Cane (کمند)</option>
+                                    <option value="Corn">Corn (مکئي)</option>
+                                </select>
+                                <input type="text" id="hist-search-input" placeholder="Search client or crop..."
+                                    class="search-mini-input">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="simple-table">
+                                <thead>
+                                    <tr>
+                                        <th>Deal #</th>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Party Name</th>
+                                        <th>Crop</th>
+                                        <th>Weight (KG)</th>
+                                        <th>Maunds (منڊ)</th>
+                                        <th>Rate / 1 KG</th>
+                                        <th>Gross Total (Rs)</th>
+                                        <th>Paid (Rs)</th>
+                                        <th>Balance Due (Rs)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-deals-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PAGE 6: PRINT BILL STUDIO ================= -->
+                <section id="view-bill" class="simple-view">
+                    <div class="bill-studio-container no-print">
+                        <div class="bill-control-bar">
+                            <div class="control-group">
+                                <label for="bill-party-select">Choose Party Statement:</label>
+                                <select id="bill-party-select" class="big-input">
+                                    <option value="">-- Select party --</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="bill-lang-select">Language:</label>
+                                <select id="bill-lang-select" class="big-input">
+                                    <option value="en">English</option>
+                                    <option value="sd">Sindhi (سنڌي)</option>
+                                </select>
+                            </div>
+                            <button class="btn-print-action" id="btn-do-print">
+                                <i class="fa-solid fa-print"></i> PRINT OFFICIAL BILL
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PRINTABLE BILL SHEET -->
+                    <div class="printable-sheet-wrapper" id="bill-sheet-wrapper">
+                        <div class="printable-bill" id="bill-sheet">
+                            <div class="bill-placeholder">
+                                <i class="fa-solid fa-file-invoice-dollar fa-3x mb-12"
+                                    style="color:var(--text-muted);"></i>
+                                <p>Select a party above to generate an official Mallah Traders statement.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PAGE 7: SETTINGS & BACKUP ================= -->
+                <section id="view-settings" class="simple-view">
+                    <div class="section-box mb-24">
+                        <div class="section-box-header">
+                            <div class="box-title">
+                                <i class="fa-solid fa-database"></i>
+                                <div>
+                                    <h3>Database Backup & Excel Exports</h3>
+                                    <small>Download full copies of your data</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-actions-grid">
+                            <a href="/api/backup" class="settings-action-card" download>
+                                <i class="fa-solid fa-download"></i>
+                                <div>
+                                    <h4>Download Full Database Backup</h4>
+                                    <small>Downloads commodity_mis.db (SQLite backup)</small>
+                                </div>
+                            </a>
+                            <a href="/api/export-csv/transactions" class="settings-action-card">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <div>
+                                    <h4>Export Deals to Excel / CSV</h4>
+                                    <small>Downloads all purchases and sales</small>
+                                </div>
+                            </a>
+                            <a href="/api/export-csv/clients" class="settings-action-card">
+                                <i class="fa-solid fa-file-csv"></i>
+                                <div>
+                                    <h4>Export Parties Directory</h4>
+                                    <small>Downloads customer and farmer records</small>
+                                </div>
+                            </a>
+                            <a href="/api/export-csv/client_payments" class="settings-action-card">
+                                <i class="fa-solid fa-receipt"></i>
+                                <div>
+                                    <h4>Export Cashbook Vouchers</h4>
+                                    <small>Downloads all cash receipts and payments</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="section-box danger-border">
+                        <div class="section-box-header">
+                            <div class="box-title">
+                                <i class="fa-solid fa-triangle-exclamation" style="color:var(--danger);"></i>
+                                <div>
+                                    <h3>Danger Zone: Reset Database</h3>
+                                    <small>Permanently delete all records and restart clean</small>
+                                </div>
+                            </div>
+                            <button class="btn-danger-pill" id="btn-danger-wipe-all">
+                                <i class="fa-solid fa-trash-can"></i> Delete All Records
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div><!-- /.main-content-wrapper -->
+    </div><!-- /.app-layout -->
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- MODAL: RECORD CASH PAYMENT -->
+    <div class="simple-modal-backdrop" id="modal-payment">
+        <div class="simple-modal-card">
+            <div class="modal-card-header">
+                <h3><i class="fa-solid fa-hand-holding-dollar"></i> Record Cash Payment (روڪ ادائيگي)</h3>
+                <button class="modal-close-btn" data-close="modal-payment">&times;</button>
+            </div>
+            <form id="form-simple-payment" class="modal-form-body">
+                <div class="form-group mb-12">
+                    <label class="required">Party Name (زميندار يا مل جو نالو)</label>
+                    <input type="text" id="pay-client-name" list="datalist-clients" required class="big-input"
+                        placeholder="Select or type party name">
+                </div>
+
+                <div class="form-group mb-12">
+                    <label class="required">Payment Direction (ادائيگي جو قسم)</label>
+                    <select id="pay-direction" class="big-input" required>
+                        <option value="Pay to Seller">Pay to Farmer / Supplier (Giving money out)</option>
+                        <option value="Receive from Purchaser">Receive from Buyer / Mill (Collecting money in)</option>
+                        <option value="Refund to Purchaser">Refund to Buyer</option>
+                        <option value="Refund from Seller">Refund from Supplier</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-12">
+                    <label class="required">Amount in Rupees (رقم)</label>
+                    <input type="number" step="any" id="pay-amount" class="big-input highlight-number" required
+                        placeholder="Rs 0.00">
+                </div>
+
+                <div class="calc-grid-2 mb-12">
+                    <div class="form-group">
+                        <label>Payment Mode</label>
+                        <select id="pay-mode" class="form-control">
+                            <option value="Cash">Cash (روڪ)</option>
+                            <option value="Bank">Bank Transfer / Cheque</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Note / Remarks</label>
+                        <input type="text" id="pay-note" placeholder="e.g. Account settlement, token">
+                    </div>
+                </div>
+
+                <div class="modal-form-footer">
+                    <button type="button" class="btn-modal-cancel" data-close="modal-payment">Cancel</button>
+                    <button type="submit" class="btn-modal-submit"><i class="fa-solid fa-floppy-disk"></i> Save Payment
+                        Voucher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD NEW PARTY -->
+    <div class="simple-modal-backdrop" id="modal-client">
+        <div class="simple-modal-card">
+            <div class="modal-card-header">
+                <h3><i class="fa-solid fa-user-plus"></i> Register Party / Client Account</h3>
+                <button class="modal-close-btn" data-close="modal-client">&times;</button>
+            </div>
+            <form id="form-simple-client" class="modal-form-body">
+                <input type="hidden" id="client-reg-id">
+                <div class="form-group mb-12">
+                    <label class="required">Party Full Name</label>
+                    <input type="text" id="client-reg-name" required class="big-input"
+                        placeholder="e.g. Haji Ali Ahmed">
+                </div>
+                <div class="calc-grid-2 mb-12">
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="text" id="client-reg-mobile" placeholder="e.g. 0300-1234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Village / City</label>
+                        <input type="text" id="client-reg-village" placeholder="e.g. Newjatoi">
+                    </div>
+                </div>
+                <div class="calc-grid-2 mb-12">
+                    <div class="form-group">
+                        <label>Party Role</label>
+                        <select id="client-reg-role" class="form-control">
+                            <option value="Both">Both (Farmer & Buyer)</option>
+                            <option value="Seller">Farmer / Supplier (Seller)</option>
+                            <option value="Purchaser">Grain Mill / Trader (Buyer)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Caste / Qoum</label>
+                        <input type="text" id="client-reg-caste" placeholder="e.g. Mallah, Jatoi">
+                    </div>
+                </div>
+                <div class="modal-form-footer">
+                    <button type="button" class="btn-modal-cancel" data-close="modal-client">Cancel</button>
+                    <button type="submit" class="btn-modal-submit"><i class="fa-solid fa-floppy-disk"></i> Save
+                        Party</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: DELETE ALL DATA CONFIRMATION -->
+    <div class="simple-modal-backdrop" id="modal-delete-all">
+        <div class="simple-modal-card danger-modal">
+            <div class="modal-card-header">
+                <h3 style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Permanently Delete All
+                    Records</h3>
+                <button class="modal-close-btn" data-close="modal-delete-all">&times;</button>
+            </div>
+            <div class="modal-form-body">
+                <p style="margin-bottom:12px; color:var(--text-secondary);">
+                    This will <strong>permanently erase every transaction, client, payment, and inventory
+                        record</strong> from your database.
+                </p>
+                <p style="margin-bottom:12px; font-weight:600; color:var(--text-primary);">
+                    Type <code
+                        style="color:var(--danger); background:rgba(239,68,68,0.15); padding:2px 8px; border-radius:4px;">DELETE</code>
+                    below to confirm:
+                </p>
+                <input type="text" id="delete-confirm-input" class="big-input" placeholder="Type DELETE"
+                    autocomplete="off">
+            </div>
+            <div class="modal-form-footer">
+                <button type="button" class="btn-modal-cancel" data-close="modal-delete-all">Cancel</button>
+                <button type="button" class="btn-danger-pill" id="btn-do-wipe-all" disabled style="padding:10px 20px;">
+                    <i class="fa-solid fa-trash-can"></i> Permanently Delete All Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATALISTS FOR AUTOCOMPLETE -->
+    <datalist id="datalist-clients"></datalist>
+    <datalist id="datalist-commodities">
+        <option value="Wheat">
+        <option value="Rice">
+        <option value="Sugar Cane">
+        <option value="Corn">
+        <option value="Mustard">
+        <option value="Cotton">
+    </datalist>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- MAIN JAVASCRIPT CONTROLLER -->
+    <script src="app.js"></script>
+</body>
+
+</html>
